@@ -1,0 +1,21 @@
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+
+# Node and frontend builds
+node_modules/
+dist/
+coverage/
+
+# Local tool files
+.DS_Store
+Thumbs.db
