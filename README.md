@@ -168,9 +168,9 @@ agentic_property_manager/
 
 ### Hour 1 - foundation
 
-- [ ] **BE-01:** Bootstrap FastAPI, configuration, health endpoint, and PostgreSQL.
+- [x] **BE-01:** Bootstrap FastAPI, configuration, health endpoint, and PostgreSQL.
 - [ ] **BE-02:** Add the minimal schema and seed maintenance/service categories.
-- [ ] **FE-01:** Bootstrap React, TypeScript, MUI, routing, and the API client.
+- [x] **FE-01:** Bootstrap React, TypeScript, MUI, routing, and the API client.
 - [ ] **DEV-01:** Start all services with the development Compose file.
 
 ### Hour 2 - identity, properties, and reports

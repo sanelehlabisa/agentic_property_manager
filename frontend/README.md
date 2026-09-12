@@ -114,9 +114,9 @@ Vite receives public client configuration from environment variables supplied by
 
 ### FE-01 - Bootstrap React and MUI
 
-- [ ] Create React + TypeScript with Vite.
-- [ ] Add MUI, icons, routing, the shared theme, and typed API client.
-- [ ] Add role-aware app shell and route guards.
+- [x] Create React + TypeScript with Vite.
+- [x] Add MUI, icons, routing, the shared theme, and typed API client.
+- [x] Add role-aware app shell and route guards.
 
 **Done when:** the app hot reloads, uses the documented palette, and displays backend health.
 

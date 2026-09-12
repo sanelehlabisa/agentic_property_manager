@@ -186,9 +186,9 @@ Settings come from environment variables loaded from the repository root `.env` 
 
 ### BE-01 - Bootstrap API and database
 
-- [ ] Create FastAPI, `GET /health`, settings, CORS, SQLAlchemy, and migrations.
-- [ ] Read all configuration from environment variables.
-- [ ] Add consistent error responses and request logging.
+- [x] Create FastAPI, `GET /health`, settings, CORS, SQLAlchemy, and migrations.
+- [x] Read all configuration from environment variables.
+- [x] Add consistent error responses and request logging.
 
 **Done when:** the container hot reloads and the API/database health checks pass.
 
