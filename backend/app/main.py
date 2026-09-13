@@ -9,7 +9,10 @@ from app import __version__
 from app.api.auth import router as auth_router
 from app.api.categories import router as categories_router
 from app.api.health import router as health_router
+from app.api.jobs import router as jobs_router
+from app.api.predictions import router as predictions_router
 from app.api.properties import router as properties_router
+from app.api.provider import router as provider_router
 from app.api.reports import router as reports_router
 from app.core.config import get_settings
 from app.core.errors import register_exception_handlers
@@ -60,3 +63,6 @@ app.include_router(auth_router)
 app.include_router(categories_router)
 app.include_router(properties_router)
 app.include_router(reports_router)
+app.include_router(predictions_router)
+app.include_router(jobs_router)
+app.include_router(provider_router)

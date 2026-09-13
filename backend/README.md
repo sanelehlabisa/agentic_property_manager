@@ -223,23 +223,23 @@ Settings come from environment variables loaded from the repository root `.env` 
 
 ### BE-06 - Rule engine
 
-- [ ] Generate stable predictions from component history and seeded rules.
-- [ ] Return due date, urgency, estimated cost, and explanation.
+- [x] Generate stable predictions from component history and seeded rules.
+- [x] Return due date, urgency, estimated cost, and explanation.
 
 **Done when:** fixed test data always generates the expected predictions without external AI calls.
 
 ### BE-07 - Job creation
 
-- [ ] Convert an approved report or prediction into exactly one open job.
-- [ ] Store approval audit data and hide exact/private location data from unmatched providers.
+- [x] Convert an approved report or prediction into exactly one open job.
+- [x] Store approval audit data and hide exact/private location data from unmatched providers.
 
 **Done when:** duplicate and unapproved job creation is rejected.
 
 ### BE-08 - Provider profiles, matching, and bidding
 
-- [ ] Implement provider profile and service-category updates.
-- [ ] Match by active service category and simple city/suburb coverage.
-- [ ] Implement bid submission, update, withdrawal, listing, and atomic acceptance.
+- [x] Implement provider profile and service-category updates.
+- [x] Match by active service category and simple city/suburb coverage.
+- [x] Implement bid submission, update, withdrawal, listing, and atomic acceptance.
 
 **Done when:** a matching provider can bid and an authorized manager can award one bid.
 

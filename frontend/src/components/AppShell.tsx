@@ -34,6 +34,11 @@ export function AppShell() {
               Dashboard
             </Button>
           )}
+          {user?.role === "provider" && (
+            <Button color="inherit" onClick={() => navigate("/provider/profile")}>
+              Profile & services
+            </Button>
+          )}
           {user && <Chip label={user.role.replace("_", " ")} color="primary" />}
           <Button
             color="inherit"

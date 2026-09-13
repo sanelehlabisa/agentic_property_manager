@@ -23,6 +23,17 @@ import { type FormEvent, type ReactNode, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
+  createJobFromPrediction,
+  createJobFromReport,
+  getPropertyJobs,
+  type JobInput,
+} from "../api/jobs";
+import {
+  approvePrediction,
+  dismissPrediction,
+  getPredictions,
+} from "../api/predictions";
+import {
   confirmMaintenanceImport,
   createComponent,
   createMaintenanceRecord,
@@ -38,17 +49,24 @@ import type {
   ComponentCondition,
   ImportPreview,
   IssueReport,
+  Job,
   MaintenanceRecord,
+  Prediction,
   Property,
   ServiceCategory,
 } from "../api/types";
 import { IssueReportDialog } from "../components/IssueReportDialog";
+import { JobPublishDialog } from "../components/JobPublishDialog";
 import { ReportStatusChip, UrgencyChip } from "../components/ReportStatusChip";
 
 const money = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
 });
+
+type PublishSource =
+  | { kind: "report"; item: IssueReport }
+  | { kind: "prediction"; item: Prediction };
 
 export function PropertyDetailPage() {
   const { propertyId = "" } = useParams();
@@ -57,11 +75,14 @@ export function PropertyDetailPage() {
   const [components, setComponents] = useState<Component[]>([]);
   const [categories, setCategories] = useState<ServiceCategory[]>([]);
   const [reports, setReports] = useState<IssueReport[]>([]);
+  const [predictions, setPredictions] = useState<Prediction[]>([]);
+  const [jobs, setJobs] = useState<Job[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<Component | null>(null);
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [componentDialog, setComponentDialog] = useState(false);
   const [recordDialog, setRecordDialog] = useState(false);
   const [reportDialog, setReportDialog] = useState(false);
+  const [publishing, setPublishing] = useState<PublishSource | null>(null);
   const [rejecting, setRejecting] = useState<IssueReport | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -75,14 +96,27 @@ export function PropertyDetailPage() {
       getComponents(propertyId),
       getCategories(),
       getReports(propertyId),
+      getPredictions(propertyId),
+      getPropertyJobs(propertyId),
     ])
-      .then(([propertyData, componentData, categoryData, reportData]) => {
+      .then(
+        ([
+          propertyData,
+          componentData,
+          categoryData,
+          reportData,
+          predictionData,
+          jobData,
+        ]) => {
         setProperty(propertyData);
         setComponents(componentData);
         setCategories(categoryData);
         setReports(reportData);
+        setPredictions(predictionData);
+        setJobs(jobData);
         setError(null);
-      })
+        },
+      )
       .catch((caught) => {
         setError(caught instanceof Error ? caught.message : "Could not load property");
       })
@@ -114,6 +148,45 @@ export function PropertyDetailPage() {
     } finally {
       setBusy(false);
     }
+  };
+
+  const dismiss = async (prediction: Prediction) => {
+    setBusy(true);
+    try {
+      const updated = await dismissPrediction(prediction.id);
+      setPredictions((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not dismiss prediction");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const publish = async (data: JobInput) => {
+    if (!publishing) return;
+    if (publishing.kind === "report") {
+      if (publishing.item.status === "pending_approval") {
+        await approveReport(publishing.item.id);
+      }
+      await createJobFromReport(publishing.item.id, data);
+    } else {
+      if (publishing.item.status === "active") {
+        await approvePrediction(publishing.item.id);
+      }
+      await createJobFromPrediction(publishing.item.id, data);
+    }
+
+    const [nextReports, nextPredictions, nextJobs] = await Promise.all([
+      getReports(propertyId),
+      getPredictions(propertyId),
+      getPropertyJobs(propertyId),
+    ]);
+    setReports(nextReports);
+    setPredictions(nextPredictions);
+    setJobs(nextJobs);
+    setPublishing(null);
   };
 
   const importFile = async (file: File) => {
@@ -297,6 +370,66 @@ export function PropertyDetailPage() {
         </Stack>
       </Section>
 
+      <Section title="Rule-based maintenance predictions">
+        {predictions.length === 0 ? (
+          <Typography color="text.secondary">
+            Add an installation date or maintenance history to generate predictions.
+          </Typography>
+        ) : (
+          <Stack spacing={2}>
+            {predictions.map((prediction) => (
+              <Card key={prediction.id} variant="outlined">
+                <CardContent>
+                  <Stack spacing={1.5}>
+                    <Stack direction="row" sx={{ gap: 1, flexWrap: "wrap" }}>
+                      <Chip
+                        size="small"
+                        label={prediction.urgency.replace("_", " ")}
+                        color={
+                          prediction.urgency === "overdue"
+                            ? "error"
+                            : prediction.urgency === "due_soon"
+                              ? "warning"
+                              : "info"
+                        }
+                      />
+                      <Chip size="small" variant="outlined" label={prediction.status} />
+                    </Stack>
+                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                      {prediction.component_name}
+                    </Typography>
+                    <Typography color="text.secondary">
+                      Due {prediction.due_date} · Estimated{" "}
+                      {money.format(Number(prediction.estimated_cost))}
+                    </Typography>
+                    <Alert severity="info">
+                      <strong>Predefined rule:</strong> {prediction.explanation}
+                    </Alert>
+                    {(prediction.status === "active" ||
+                      prediction.status === "approved") && (
+                      <Stack direction="row" spacing={1}>
+                        <Button
+                          variant="contained"
+                          disabled={busy}
+                          onClick={() => setPublishing({ kind: "prediction", item: prediction })}
+                        >
+                          {prediction.status === "active" ? "Approve & publish" : "Publish job"}
+                        </Button>
+                        {prediction.status === "active" && (
+                          <Button disabled={busy} onClick={() => void dismiss(prediction)}>
+                            Dismiss
+                          </Button>
+                        )}
+                      </Stack>
+                    )}
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        )}
+      </Section>
+
       <Section
         title="Issue report approval queue"
         action={
@@ -332,9 +465,9 @@ export function PropertyDetailPage() {
                         <Button
                           variant="contained"
                           disabled={busy}
-                          onClick={() => void review(report, true)}
+                          onClick={() => setPublishing({ kind: "report", item: report })}
                         >
-                          Approve
+                          Approve & publish
                         </Button>
                         <Button
                           color="error"
@@ -345,6 +478,45 @@ export function PropertyDetailPage() {
                         </Button>
                       </Stack>
                     )}
+                    {report.status === "approved" && (
+                      <Button
+                        variant="contained"
+                        disabled={busy}
+                        onClick={() => setPublishing({ kind: "report", item: report })}
+                      >
+                        Publish job
+                      </Button>
+                    )}
+                  </Stack>
+                </CardContent>
+              </Card>
+            ))}
+          </Stack>
+        )}
+      </Section>
+
+      <Section title="Published jobs">
+        {jobs.length === 0 ? (
+          <Typography color="text.secondary">
+            Approved work will appear here after it is published to matching providers.
+          </Typography>
+        ) : (
+          <Stack spacing={2}>
+            {jobs.map((job) => (
+              <Card key={job.id} variant="outlined">
+                <CardContent>
+                  <Stack spacing={1}>
+                    <Stack direction="row" sx={{ gap: 1, flexWrap: "wrap" }}>
+                      <Chip size="small" color="primary" label={job.status} />
+                      <Chip size="small" variant="outlined" label={job.category_code} />
+                    </Stack>
+                    <Typography variant="h6" sx={{ fontWeight: 800 }}>
+                      {job.description}
+                    </Typography>
+                    <Typography color="text.secondary">
+                      Budget {money.format(Number(job.budget))} · Public location{" "}
+                      {job.public_location}
+                    </Typography>
                   </Stack>
                 </CardContent>
               </Card>
@@ -360,6 +532,26 @@ export function PropertyDetailPage() {
         components={components}
         onClose={() => setReportDialog(false)}
         onCreated={(report) => setReports((current) => [report, ...current])}
+      />
+      <JobPublishDialog
+        open={Boolean(publishing)}
+        title={
+          publishing?.kind === "prediction"
+            ? "Approve predicted maintenance"
+            : "Approve reported issue"
+        }
+        initialDescription={
+          publishing?.kind === "report"
+            ? publishing.item.description
+            : publishing?.kind === "prediction"
+              ? `${publishing.item.component_name}: ${publishing.item.explanation}`
+              : ""
+        }
+        initialBudget={
+          publishing?.kind === "prediction" ? publishing.item.estimated_cost : "0.00"
+        }
+        onClose={() => setPublishing(null)}
+        onPublish={publish}
       />
 
       <ComponentDialog

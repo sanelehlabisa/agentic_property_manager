@@ -169,9 +169,7 @@ def test_property_access_does_not_leak_across_memberships(api) -> None:
     )
     assert created.status_code == 201
 
-    hidden = client.get(
-        f"/properties/{created.json()['id']}", headers=tenant_headers
-    )
+    hidden = client.get(f"/properties/{created.json()['id']}", headers=tenant_headers)
     assert hidden.status_code == 404
 
     visible_properties = client.get("/properties", headers=tenant_headers)

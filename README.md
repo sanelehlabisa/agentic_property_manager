@@ -183,11 +183,11 @@ agentic_property_manager/
 
 ### Hour 3 - rules and marketplace
 
-- [ ] **BE-06:** Implement explainable rule-based maintenance predictions.
-- [ ] **BE-07:** Convert approved reports or predictions into jobs.
-- [ ] **BE-08:** Implement provider profiles, matching, jobs, and bidding.
-- [ ] **FE-04:** Build predictions and job approval screens.
-- [ ] **FE-05:** Build provider profile, matched job feed, and bid form.
+- [x] **BE-06:** Implement explainable rule-based maintenance predictions.
+- [x] **BE-07:** Convert approved reports or predictions into jobs.
+- [x] **BE-08:** Implement provider profiles, matching, jobs, and bidding.
+- [x] **FE-04:** Build predictions and job approval screens.
+- [x] **FE-05:** Build provider profile, matched job feed, and bid form.
 
 ### Hour 4 - closed-loop demo
 

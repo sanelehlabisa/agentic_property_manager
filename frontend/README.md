@@ -139,15 +139,15 @@ Vite receives public client configuration from environment variables supplied by
 ### FE-04 - Approval queue and predictions
 
 - [x] List pending reports with approve/reject dialogs.
-- [ ] Show predictions with server-provided explanations.
-- [ ] Confirm job fields when approving a report or prediction.
+- [x] Show predictions with server-provided explanations.
+- [x] Confirm job fields when approving a report or prediction.
 
 **Done when:** an authorized user can publish one job from either source.
 
 ### FE-05 - Provider profile and matched jobs
 
-- [ ] Build editable provider identity, coverage, description, and service-category controls.
-- [ ] Display matched jobs and bid create/update/withdraw forms.
+- [x] Build editable provider identity, coverage, description, and service-category controls.
+- [x] Display matched jobs and bid create/update/withdraw forms.
 
 **Done when:** changing active services changes the feed after an API refresh.
 

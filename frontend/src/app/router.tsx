@@ -5,7 +5,7 @@ import { AppShell } from "../components/AppShell";
 import { HealthPage } from "../pages/HealthPage";
 import { PortfolioPage } from "../pages/PortfolioPage";
 import { PropertyDetailPage } from "../pages/PropertyDetailPage";
-import { RolePreviewPage } from "../pages/RolePreviewPage";
+import { ProviderMarketplacePage } from "../pages/ProviderMarketplacePage";
 import { SignInPage } from "../pages/SignInPage";
 import { TenantHomePage } from "../pages/TenantHomePage";
 
@@ -27,10 +27,8 @@ export function AppRouter() {
           <Route path="tenant/home" element={<TenantHomePage />} />
         </Route>
         <Route element={<RoleGuard allow={["provider"]} />}>
-          <Route
-            path="provider/jobs"
-            element={<RolePreviewPage title="Matched jobs" />}
-          />
+          <Route path="provider/jobs" element={<ProviderMarketplacePage />} />
+          <Route path="provider/profile" element={<ProviderMarketplacePage />} />
         </Route>
       </Route>
 
