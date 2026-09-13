@@ -175,11 +175,11 @@ agentic_property_manager/
 
 ### Hour 2 - identity, properties, and reports
 
-- [ ] **BE-03:** Implement demo email onboarding and property-scoped authorization.
-- [ ] **BE-04:** Implement properties, memberships, components, and maintenance history.
-- [ ] **BE-05:** Implement issue reporting plus owner/manager approval and rejection.
-- [ ] **FE-02:** Build sign-in/onboarding and role-aware navigation.
-- [ ] **FE-03:** Build property workspace, tenant report form, and approval queue.
+- [x] **BE-03:** Implement demo email onboarding and property-scoped authorization.
+- [x] **BE-04:** Implement properties, memberships, components, and maintenance history.
+- [x] **BE-05:** Implement issue reporting plus owner/manager approval and rejection.
+- [x] **FE-02:** Build sign-in/onboarding and role-aware navigation.
+- [x] **FE-03:** Build property workspace, tenant report form, and approval queue.
 
 ### Hour 3 - rules and marketplace
 

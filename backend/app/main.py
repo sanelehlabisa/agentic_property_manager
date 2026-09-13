@@ -6,7 +6,11 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app import __version__
+from app.api.auth import router as auth_router
+from app.api.categories import router as categories_router
 from app.api.health import router as health_router
+from app.api.properties import router as properties_router
+from app.api.reports import router as reports_router
 from app.core.config import get_settings
 from app.core.errors import register_exception_handlers
 from app.core.logging import configure_logging
@@ -52,3 +56,7 @@ async def log_request(request: Request, call_next):
 
 
 app.include_router(health_router)
+app.include_router(auth_router)
+app.include_router(categories_router)
+app.include_router(properties_router)
+app.include_router(reports_router)

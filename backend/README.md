@@ -201,23 +201,23 @@ Settings come from environment variables loaded from the repository root `.env` 
 
 ### BE-03 - Demo identity and access
 
-- [ ] Find/create users by normalized email and finish first-time onboarding.
-- [ ] Enforce role and property membership in reusable dependencies/services.
+- [x] Find/create users by normalized email and finish first-time onboarding.
+- [x] Enforce role and property membership in reusable dependencies/services.
 
 **Done when:** cross-property and cross-role access tests fail with HTTP 403/404.
 
 ### BE-04 - Property maintenance data
 
-- [ ] Implement property, access, component, and maintenance-record endpoints.
-- [ ] Add CSV preview/confirm using fixed mappings and aliases.
+- [x] Implement property, access, component, and maintenance-record endpoints.
+- [x] Add CSV preview/confirm using fixed mappings and aliases.
 
 **Done when:** an owner can prepare complete input for the rule engine.
 
 ### BE-05 - Issue reports and approval
 
-- [ ] Implement tenant/owner/manager report creation.
-- [ ] Implement owner/manager approve and reject actions with audit fields.
-- [ ] Expose only safe status information to tenants.
+- [x] Implement tenant/owner/manager report creation.
+- [x] Implement owner/manager approve and reject actions with audit fields.
+- [x] Expose only safe status information to tenants.
 
 **Done when:** a tenant report cannot become a job until an authorized user approves it.
 

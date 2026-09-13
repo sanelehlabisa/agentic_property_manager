@@ -10,15 +10,16 @@ import {
 } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
 
-import { clearSessionRole, getSessionRole } from "../auth/session";
+import { useAuth } from "../auth/AuthContext";
+import { roleHome } from "../auth/session";
 
 export function AppShell() {
   const navigate = useNavigate();
-  const role = getSessionRole();
+  const { user, signOut } = useAuth();
 
-  const leavePreview = () => {
-    clearSessionRole();
-    navigate("/");
+  const leaveSession = () => {
+    signOut();
+    navigate("/sign-in");
   };
 
   return (
@@ -28,13 +29,18 @@ export function AppShell() {
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800 }}>
             Property Manager
           </Typography>
-          {role && <Chip label={role.replace("_", " ")} color="primary" />}
+          {user && (
+            <Button color="inherit" onClick={() => navigate(roleHome(user.role))}>
+              Dashboard
+            </Button>
+          )}
+          {user && <Chip label={user.role.replace("_", " ")} color="primary" />}
           <Button
             color="inherit"
             startIcon={<LogoutRoundedIcon />}
-            onClick={leavePreview}
+            onClick={leaveSession}
           >
-            Leave preview
+            Sign out
           </Button>
         </Toolbar>
       </AppBar>

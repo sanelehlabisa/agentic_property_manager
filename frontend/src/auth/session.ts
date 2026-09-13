@@ -1,19 +1,36 @@
 export type UserRole = "homeowner" | "manager" | "tenant" | "provider";
 
-const SESSION_ROLE_KEY = "property_manager_demo_role";
-const roles: UserRole[] = ["homeowner", "manager", "tenant", "provider"];
-
-export function getSessionRole(): UserRole | null {
-  const value = window.localStorage.getItem(SESSION_ROLE_KEY);
-  return roles.includes(value as UserRole) ? (value as UserRole) : null;
+export interface SessionUser {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
 }
 
-export function setSessionRole(role: UserRole): void {
-  window.localStorage.setItem(SESSION_ROLE_KEY, role);
+export interface DemoSession {
+  token: string;
+  user: SessionUser;
 }
 
-export function clearSessionRole(): void {
-  window.localStorage.removeItem(SESSION_ROLE_KEY);
+const SESSION_KEY = "property_manager_demo_session";
+
+export function getStoredSession(): DemoSession | null {
+  const value = window.localStorage.getItem(SESSION_KEY);
+  if (!value) return null;
+  try {
+    return JSON.parse(value) as DemoSession;
+  } catch {
+    window.localStorage.removeItem(SESSION_KEY);
+    return null;
+  }
+}
+
+export function storeSession(session: DemoSession): void {
+  window.localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+export function clearStoredSession(): void {
+  window.localStorage.removeItem(SESSION_KEY);
 }
 
 export function roleHome(role: UserRole): string {

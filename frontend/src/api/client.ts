@@ -1,3 +1,5 @@
+import { getStoredSession } from "../auth/session";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 interface ApiErrorBody {
@@ -19,10 +21,14 @@ export class ApiError extends Error {
 }
 
 export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T> {
+  const session = getStoredSession();
+  const hasBody = init?.body !== undefined;
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       Accept: "application/json",
+      ...(hasBody ? { "Content-Type": "application/json" } : {}),
+      ...(session ? { "X-User-ID": session.token } : {}),
       ...init?.headers,
     },
   });
@@ -36,5 +42,17 @@ export async function apiRequest<T>(path: string, init?: RequestInit): Promise<T
     );
   }
 
+  if (response.status === 204) return undefined as T;
   return (await response.json()) as T;
+}
+
+export function jsonRequest<T>(
+  path: string,
+  method: "POST" | "PATCH" | "PUT" | "DELETE",
+  body?: unknown,
+): Promise<T> {
+  return apiRequest<T>(path, {
+    method,
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
 }

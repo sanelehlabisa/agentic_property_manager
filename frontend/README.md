@@ -122,23 +122,23 @@ Vite receives public client configuration from environment variables supplied by
 
 ### FE-02 - Sign-in and onboarding
 
-- [ ] Build email sign-in and first-time name/role onboarding.
-- [ ] Redirect each role to the correct landing page.
-- [ ] Add an obvious demo account switcher.
+- [x] Build email sign-in and first-time name/role onboarding.
+- [x] Redirect each role to the correct landing page.
+- [x] Add an obvious demo account switcher.
 
 **Done when:** each seeded user can enter its role-specific flow.
 
 ### FE-03 - Properties and tenant reporting
 
-- [ ] Build portfolio/property detail for owners and managers.
-- [ ] Build component and maintenance-history forms.
-- [ ] Build tenant assigned-property view and report form/status page.
+- [x] Build portfolio/property detail for owners and managers.
+- [x] Build component and maintenance-history forms.
+- [x] Build tenant assigned-property view and report form/status page.
 
 **Done when:** a tenant submits a valid report and sees `pending_approval` from the API.
 
 ### FE-04 - Approval queue and predictions
 
-- [ ] List pending reports with approve/reject dialogs.
+- [x] List pending reports with approve/reject dialogs.
 - [ ] Show predictions with server-provided explanations.
 - [ ] Confirm job fields when approving a report or prediction.
 

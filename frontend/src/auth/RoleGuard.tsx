@@ -1,6 +1,7 @@
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 
-import { getSessionRole, type UserRole } from "./session";
+import { useAuth } from "./AuthContext";
+import type { UserRole } from "./session";
 
 interface RoleGuardProps {
   allow: UserRole[];
@@ -8,15 +9,21 @@ interface RoleGuardProps {
 
 export function RoleGuard({ allow }: RoleGuardProps) {
   const location = useLocation();
-  const role = getSessionRole();
+  const { user } = useAuth();
 
-  if (!role) {
+  if (!user) {
     return <Navigate to="/sign-in" replace state={{ from: location.pathname }} />;
   }
 
-  if (!allow.includes(role)) {
-    return <Navigate to="/" replace />;
+  if (!allow.includes(user.role)) {
+    return <Navigate to={roleHome(user.role)} replace />;
   }
 
   return <Outlet />;
+}
+
+function roleHome(role: UserRole): string {
+  if (role === "tenant") return "/tenant/home";
+  if (role === "provider") return "/provider/jobs";
+  return "/portfolio";
 }

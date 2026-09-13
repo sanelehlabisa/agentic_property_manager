@@ -16,25 +16,17 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getHealth, type HealthResponse } from "../api/health";
-import {
-  roleHome,
-  setSessionRole,
-  type UserRole,
-} from "../auth/session";
+import { useAuth } from "../auth/AuthContext";
+import { roleHome } from "../auth/session";
 
 type HealthState =
   | { status: "loading" }
   | { status: "ready"; data: HealthResponse }
   | { status: "unavailable"; message: string };
 
-const previews: Array<{ role: UserRole; label: string }> = [
-  { role: "manager", label: "Manager preview" },
-  { role: "tenant", label: "Tenant preview" },
-  { role: "provider", label: "Provider preview" },
-];
-
 export function HealthPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [health, setHealth] = useState<HealthState>({ status: "loading" });
 
   useEffect(() => {
@@ -47,11 +39,6 @@ export function HealthPage() {
         }),
       );
   }, []);
-
-  const openPreview = (role: UserRole) => {
-    setSessionRole(role);
-    navigate(roleHome(role));
-  };
 
   return (
     <Container maxWidth="lg" sx={{ py: { xs: 5, md: 10 } }}>
@@ -113,23 +100,19 @@ export function HealthPage() {
               <Stack spacing={2.5}>
                 <Box>
                   <Typography variant="h6" sx={{ fontWeight: 800 }}>
-                    Role-aware foundation
+                    Continue to your workspace
                   </Typography>
                   <Typography color="text.secondary">
-                    Preview the guarded landing route for each user type.
+                    Sign in with email to open the workspace allowed for your role.
                   </Typography>
                 </Box>
-                <Stack direction={{ xs: "column", sm: "row" }} spacing={1.5}>
-                  {previews.map(({ role, label }) => (
-                    <Button
-                      key={role}
-                      variant={role === "manager" ? "contained" : "outlined"}
-                      onClick={() => openPreview(role)}
-                    >
-                      {label}
-                    </Button>
-                  ))}
-                </Stack>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate(user ? roleHome(user.role) : "/sign-in")}
+                  sx={{ alignSelf: "flex-start" }}
+                >
+                  {user ? "Open dashboard" : "Sign in"}
+                </Button>
               </Stack>
             </CardContent>
           </Card>
