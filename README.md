@@ -169,9 +169,9 @@ agentic_property_manager/
 ### Hour 1 - foundation
 
 - [x] **BE-01:** Bootstrap FastAPI, configuration, health endpoint, and PostgreSQL.
-- [ ] **BE-02:** Add the minimal schema and seed maintenance/service categories.
+- [x] **BE-02:** Add the minimal schema and seed maintenance/service categories.
 - [x] **FE-01:** Bootstrap React, TypeScript, MUI, routing, and the API client.
-- [ ] **DEV-01:** Start all services with the development Compose file.
+- [x] **DEV-01:** Start all services with the development Compose file.
 
 ### Hour 2 - identity, properties, and reports
 
@@ -200,7 +200,7 @@ Detailed acceptance criteria are in [backend/README.md](backend/README.md) and [
 
 ## Run locally
 
-Once the implementation files and Dockerfiles described in the tickets exist:
+To start the complete development stack:
 
 1. Create local configuration from the committed template if `.env` is not already present:
 
@@ -213,14 +213,14 @@ Once the implementation files and Dockerfiles described in the tickets exist:
 3. Start the development stack:
 
    ```bash
-   docker compose -f dev.docker-compose.yaml up --build
+   docker compose -f dev.docker-compose.yaml up --build --wait
    ```
 
 - Frontend: <http://localhost:5173>
 - Backend API: <http://localhost:8000>
 - API documentation: <http://localhost:8000/docs>
 
-The development stack mounts both source directories so Vite and Uvicorn reload after file changes.
+The backend applies migrations and runs the idempotent demo seed before starting. The development stack mounts both source directories so Vite and Uvicorn reload after file changes.
 
 Docker Compose automatically reads the root `.env`. It supplies PostgreSQL credentials and development configuration to the appropriate containers. `.env` is ignored by Git; `.env.example` documents the required variables and contains no real credentials. Only `VITE_` variables are exposed to browser code.
 

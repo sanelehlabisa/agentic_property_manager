@@ -194,8 +194,8 @@ Settings come from environment variables loaded from the repository root `.env` 
 
 ### BE-02 - Schema and seed data
 
-- [ ] Create the tables and constraints documented above.
-- [ ] Seed service categories, maintenance rules, and demo users/property.
+- [x] Create the tables and constraints documented above.
+- [x] Seed service categories, maintenance rules, and demo users/property.
 
 **Done when:** a clean database can be migrated and seeded repeatedly.
 
