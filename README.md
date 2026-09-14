@@ -198,6 +198,31 @@ agentic_property_manager/
 
 Detailed acceptance criteria are in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md).
 
+## Simple improvement plan
+
+### Batch 5 - navigation and account polish
+
+- [x] **FE-08:** Add a simple logo, personal greeting, user icon, email/role summary, and red sign-out action to the shared header.
+- [ ] **FE-09:** Move account/profile editing behind the user area so role landing pages focus on daily work.
+
+### Batch 6 - issues overview
+
+- [ ] **BE-10:** Add one property-scoped issue list endpoint with status and date filters.
+- [ ] **FE-10:** Add a top-level owner/manager issues view showing the five most recent issues across accessible properties.
+- [ ] **FE-11:** Show the three most recent issues on each portfolio property card.
+
+### Batch 7 - provider work tracking
+
+- [ ] **BE-11:** Add guarded job transitions from `awarded` to `in_progress` and `completed`.
+- [ ] **FE-12:** Split the provider landing page into open jobs, active work, and completed work.
+
+### Batch 8 - property workspace cleanup
+
+- [ ] **FE-13:** Make components, upcoming predictions, issues, and jobs the main property sections.
+- [ ] **FE-14:** Add simple status filters that default to upcoming or active items.
+- [ ] **FE-15:** Keep property editing behind a secondary action instead of showing it as the main content.
+- [ ] **QA-01:** Extend tests and the demo script for the improved navigation and job lifecycle.
+
 ## Run locally
 
 To start the complete development stack:

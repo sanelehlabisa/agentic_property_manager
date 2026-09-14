@@ -166,6 +166,21 @@ Vite receives public client configuration from environment variables supplied by
 
 **Done when:** the happy path is understandable without narration and common failures are recoverable.
 
+### FE-08 - Shared header identity
+
+- [x] Add a simple property logo and keep it linked to the role dashboard.
+- [x] Show a user icon, personal greeting, email, and role in the shared header.
+- [x] Make sign out a clearly destructive red action.
+
+**Done when:** every signed-in role can identify the current account and return to its dashboard from the header.
+
+### FE-09 - Account profile entry point
+
+- [ ] Make the user identity area the entry point for account/profile editing.
+- [ ] Keep profile forms away from the main provider job feed.
+
+**Done when:** landing pages prioritize daily tasks while profile editing remains easy to find.
+
 ## Out of scope
 
 Payments, chat, maps, real-time updates, complex charts, multi-role settings, and a custom design system are intentionally excluded from the first build.

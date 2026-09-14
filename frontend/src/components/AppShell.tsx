@@ -1,10 +1,13 @@
+import HomeWorkRoundedIcon from "@mui/icons-material/HomeWorkRounded";
 import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import PersonRoundedIcon from "@mui/icons-material/PersonRounded";
 import {
   AppBar,
+  Avatar,
   Box,
   Button,
-  Chip,
   Container,
+  Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
@@ -16,6 +19,7 @@ import { roleHome } from "../auth/session";
 export function AppShell() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const roleLabel = user?.role.replace("_", " ");
 
   const leaveSession = () => {
     signOut();
@@ -25,23 +29,79 @@ export function AppShell() {
   return (
     <Box sx={{ minHeight: "100vh" }}>
       <AppBar position="static" color="inherit" elevation={0}>
-        <Toolbar sx={{ borderBottom: 1, borderColor: "divider", gap: 2 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800 }}>
-            Property Manager
-          </Typography>
+        <Toolbar
+          sx={{
+            borderBottom: 1,
+            borderColor: "divider",
+            gap: { xs: 1, md: 2 },
+            minHeight: { xs: 72, md: 80 },
+            py: 1,
+          }}
+        >
+          <Button
+            aria-label="Go to dashboard"
+            color="inherit"
+            onClick={() => user && navigate(roleHome(user.role))}
+            sx={{ mr: "auto", minWidth: 0, p: 0, textTransform: "none" }}
+          >
+            <Box
+              sx={{
+                alignItems: "center",
+                bgcolor: "primary.main",
+                borderRadius: 2,
+                color: "primary.contrastText",
+                display: "flex",
+                height: 40,
+                justifyContent: "center",
+                mr: 1.25,
+                width: 40,
+              }}
+            >
+              <HomeWorkRoundedIcon />
+            </Box>
+            <Typography
+              variant="h6"
+              sx={{ display: { xs: "none", sm: "block" }, fontWeight: 900 }}
+            >
+              Property Manager
+            </Typography>
+          </Button>
           {user && (
-            <Button color="inherit" onClick={() => navigate(roleHome(user.role))}>
+            <Button
+              color="inherit"
+              onClick={() => navigate(roleHome(user.role))}
+              sx={{ display: { xs: "none", md: "inline-flex" } }}
+            >
               Dashboard
             </Button>
           )}
           {user?.role === "provider" && (
-            <Button color="inherit" onClick={() => navigate("/provider/profile")}>
+            <Button
+              color="inherit"
+              onClick={() => navigate("/provider/profile")}
+              sx={{ display: { xs: "none", md: "inline-flex" } }}
+            >
               Profile & services
             </Button>
           )}
-          {user && <Chip label={user.role.replace("_", " ")} color="primary" />}
+          {user && (
+            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+              <Avatar sx={{ bgcolor: "grey.200", color: "text.primary" }}>
+                <PersonRoundedIcon />
+              </Avatar>
+              <Box sx={{ display: { xs: "none", md: "block" } }}>
+                <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                  Hello, {user.name.split(" ")[0]}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {user.email} · {roleLabel}
+                </Typography>
+              </Box>
+            </Stack>
+          )}
           <Button
-            color="inherit"
+            color="error"
+            variant="outlined"
             startIcon={<LogoutRoundedIcon />}
             onClick={leaveSession}
           >
