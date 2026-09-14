@@ -190,6 +190,23 @@ def test_prediction_can_be_approved_and_published(api) -> None:
     assert created.status_code == 201
     assert created.json()["prediction_id"] == prediction["id"]
 
+    provider_headers = auth_headers(session, "provider@example.com")
+    matched = client.get("/provider/matched-jobs", headers=provider_headers)
+    assert created.json()["id"] in {job["id"] for job in matched.json()}
+    bid = client.post(
+        f"/jobs/{created.json()['id']}/bids",
+        headers=provider_headers,
+        json={
+            "amount": "1200.00",
+            "message": "Annual geyser service with inspection report included.",
+            "available_on": "2026-09-18",
+        },
+    )
+    assert bid.status_code == 201
+    accepted = client.post(f"/bids/{bid.json()['id']}/accept", headers=manager_headers)
+    assert accepted.status_code == 200
+    assert accepted.json()["status"] == "accepted"
+
 
 def test_provider_matching_bidding_and_atomic_award(api) -> None:
     client, session = api
@@ -285,3 +302,12 @@ def test_provider_matching_bidding_and_atomic_award(api) -> None:
 
     awards = client.get("/provider/awards", headers=provider_headers)
     assert job["id"] in {item["id"] for item in awards.json()}
+
+    tenant_reports = client.get(
+        f"/properties/{job['property_id']}/reports",
+        headers=auth_headers(session, "tenant@example.com"),
+    ).json()
+    source_report = next(
+        report for report in tenant_reports if report["id"] == job["issue_report_id"]
+    )
+    assert source_report["job_status"] == "awarded"

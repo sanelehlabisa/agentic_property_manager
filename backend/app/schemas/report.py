@@ -3,7 +3,7 @@ from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from app.models.enums import ReportStatus, ReportUrgency
+from app.models.enums import JobStatus, ReportStatus, ReportUrgency
 
 
 class IssueReportCreate(BaseModel):
@@ -27,6 +27,7 @@ class IssueReportRead(BaseModel):
     description: str
     urgency: ReportUrgency
     status: ReportStatus
+    job_status: JobStatus | None = None
     review_reason: str | None
     reviewed_by_user_id: UUID | None
     reviewed_at: datetime | None

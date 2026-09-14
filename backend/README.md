@@ -245,8 +245,8 @@ Settings come from environment variables loaded from the repository root `.env` 
 
 ### BE-09 - Demo reliability
 
-- [ ] Test both tenant-report and prediction-to-job happy paths.
-- [ ] Add resettable seed data and document shortcuts.
+- [x] Test both tenant-report and prediction-to-job happy paths.
+- [x] Add resettable seed data and document shortcuts.
 
 **Done when:** the entire demo can be replayed predictably.
 

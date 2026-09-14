@@ -69,6 +69,7 @@ export interface IssueReport {
   description: string;
   urgency: ReportUrgency;
   status: ReportStatus;
+  job_status: JobStatus | null;
   review_reason: string | null;
   reviewed_by_user_id: string | null;
   reviewed_at: string | null;

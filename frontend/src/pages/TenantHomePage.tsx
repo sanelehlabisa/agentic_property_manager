@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   CardContent,
+  Chip,
   CircularProgress,
   FormControl,
   InputLabel,
@@ -170,6 +171,13 @@ export function TenantHomePage() {
                         <Stack direction="row" sx={{ gap: 1, flexWrap: "wrap" }}>
                           <ReportStatusChip status={report.status} />
                           <UrgencyChip urgency={report.urgency} />
+                          {report.job_status && (
+                            <Chip
+                              size="small"
+                              color={report.job_status === "awarded" ? "success" : "primary"}
+                              label={`job ${report.job_status.replace("_", " ")}`}
+                            />
+                          )}
                         </Stack>
                         <Typography variant="h6" sx={{ fontWeight: 800 }}>
                           {report.title}

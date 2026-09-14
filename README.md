@@ -191,10 +191,10 @@ agentic_property_manager/
 
 ### Hour 4 - closed-loop demo
 
-- [ ] **FE-06:** Build owner/manager bid review and bid acceptance.
-- [ ] **BE-09:** Add seed data and happy-path API tests.
-- [ ] **FE-07:** Add loading, empty, validation, and error states.
-- [ ] **DEV-02:** Reset, rehearse, and document the demo.
+- [x] **FE-06:** Build owner/manager bid review and bid acceptance.
+- [x] **BE-09:** Add seed data and happy-path API tests.
+- [x] **FE-07:** Add loading, empty, validation, and error states.
+- [x] **DEV-02:** Reset, rehearse, and document the demo.
 
 Detailed acceptance criteria are in [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md).
 
@@ -224,12 +224,41 @@ The backend applies migrations and runs the idempotent demo seed before starting
 
 Docker Compose automatically reads the root `.env`. It supplies PostgreSQL credentials and development configuration to the appropriate containers. `.env` is ignored by Git; `.env.example` documents the required variables and contains no real credentials. Only `VITE_` variables are exposed to browser code.
 
+### Reset the demo
+
+The reset command deletes all application data in the configured development database, then recreates the predictable seed data. Run it from the repository root while the stack is running:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File scripts/reset-demo.ps1
+```
+
+The equivalent cross-platform command is:
+
+```bash
+docker compose --env-file .env -f dev.docker-compose.yaml exec -T backend python -m app.seed.reset --confirm
+```
+
+Do not run this command against a database containing data you need to keep.
+
 ## Demo script
 
-1. Sign in as a tenant, open the assigned property, and report a leaking pipe.
-2. Sign in as its property manager, review the pending report, and approve it as a plumbing job.
-3. Also show a rule-generated upcoming maintenance prediction and its explanation.
-4. Sign in as a service provider, update the plumbing service profile, view the matched job, and bid.
-5. Return to the manager, compare bids, accept one, and show the updated job status.
+| Role | Demo email |
+| --- | --- |
+| Homeowner | `owner@example.com` |
+| Property manager | `manager@example.com` |
+| Tenant | `tenant@example.com` |
+| Provider 1 | `provider@example.com` |
+| Provider 2 | `provider2@example.com` |
+
+For a clean, repeatable rehearsal:
+
+1. Reset the demo and open <http://localhost:5173>.
+2. Sign in as `tenant@example.com`, open **Demo Home**, and report a plumbing issue. Show that its status is `pending_approval`.
+3. Switch to `manager@example.com`, open **Demo Home**, and choose **Approve & publish**. Confirm a provider-safe description and budget.
+4. Show the rule-generated **Main geyser** prediction. Point out its server-provided due date, estimated cost, urgency, and explanation; optionally approve it as a second job.
+5. Switch to `provider@example.com`. Show the editable profile and active plumbing service, open the matched job, and bid.
+6. Switch to `provider2@example.com` and place a competing bid on the same job.
+7. Return to `manager@example.com`, choose **Review bids**, compare price, availability, message, and rating, then confirm one award. The backend accepts one bid, rejects the competitor, and marks the job `awarded` atomically.
+8. Return to the tenant. The report shows safe job progress as `job awarded` without bids, provider contact information, or the exact property address.
 
 The story is: **report or predict -> approve -> match -> bid -> get it done.**

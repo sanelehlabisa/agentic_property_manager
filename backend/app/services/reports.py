@@ -5,8 +5,8 @@ from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Component, IssueReport, User
-from app.models.enums import PropertyAccessRole, ReportStatus, UserRole
+from app.models import Component, IssueReport, Job, User
+from app.models.enums import JobStatus, PropertyAccessRole, ReportStatus, UserRole
 from app.schemas.report import IssueReportCreate
 from app.services.access import get_accessible_property, require_property_manager
 from app.services.properties import validate_category
@@ -14,11 +14,12 @@ from app.services.properties import validate_category
 
 def list_reports(
     session: Session, user: User, property_id: UUID
-) -> list[tuple[IssueReport, str]]:
+) -> list[tuple[IssueReport, str, JobStatus | None]]:
     _, membership = get_accessible_property(session, user, property_id)
     query = (
-        select(IssueReport, User.name)
+        select(IssueReport, User.name, Job.status)
         .join(User, User.id == IssueReport.reporter_user_id)
+        .outerjoin(Job, Job.issue_report_id == IssueReport.id)
         .where(IssueReport.property_id == property_id)
         .order_by(IssueReport.created_at.desc())
     )

@@ -22,6 +22,7 @@ const demoAccounts = [
   ["Manager", "manager@example.com"],
   ["Tenant", "tenant@example.com"],
   ["Provider", "provider@example.com"],
+  ["Provider 2", "provider2@example.com"],
 ] as const;
 
 export function SignInPage() {

@@ -42,6 +42,7 @@ DEMO_USERS = (
     ("manager@example.com", "Demo Manager", UserRole.MANAGER),
     ("tenant@example.com", "Demo Tenant", UserRole.TENANT),
     ("provider@example.com", "Demo Provider", UserRole.PROVIDER),
+    ("provider2@example.com", "Second Demo Provider", UserRole.PROVIDER),
 )
 
 
@@ -52,7 +53,24 @@ def seed_database(session: Session) -> None:
         property_ = _seed_property(session)
         _seed_property_access(session, property_, users)
         _seed_component_history(session, property_)
-        _seed_provider(session, users["provider@example.com"])
+        _seed_provider(
+            session,
+            users["provider@example.com"],
+            business_name="Demo Plumbing Services",
+            description="Local plumbing and geyser maintenance provider.",
+            phone="+27 11 555 0100",
+            suburb="Rosebank",
+            rating=Decimal("4.60"),
+        )
+        _seed_provider(
+            session,
+            users["provider2@example.com"],
+            business_name="Jozi Rapid Repairs",
+            description="Residential plumbing repairs across Johannesburg.",
+            phone="+27 11 555 0110",
+            suburb="Sandton",
+            rating=Decimal("4.35"),
+        )
         session.commit()
     except Exception:
         session.rollback()
@@ -176,24 +194,32 @@ def _seed_component_history(session: Session, property_: Property) -> None:
         )
 
 
-def _seed_provider(session: Session, user: User) -> None:
+def _seed_provider(
+    session: Session,
+    user: User,
+    *,
+    business_name: str,
+    description: str,
+    phone: str,
+    suburb: str,
+    rating: Decimal,
+) -> None:
     profile = session.scalar(
         select(ProviderProfile).where(ProviderProfile.user_id == user.id)
     )
     if profile is None:
         profile = ProviderProfile(
             user_id=user.id,
-            business_name="Demo Plumbing Services",
-            description="Local plumbing and geyser maintenance provider.",
-            phone="+27 11 555 0100",
-            suburb="Rosebank",
+            business_name=business_name,
+            description=description,
+            phone=phone,
+            suburb=suburb,
             city="Johannesburg",
             service_radius_km=25,
-            rating=Decimal("4.60"),
+            rating=rating,
         )
         session.add(profile)
         session.flush()
-
     service = session.scalar(
         select(ProviderService).where(
             ProviderService.provider_profile_id == profile.id,
@@ -205,7 +231,7 @@ def _seed_provider(session: Session, user: User) -> None:
             ProviderService(
                 provider_profile_id=profile.id,
                 category_code="plumbing",
-                description="Leaks, drains, taps, and geyser servicing.",
+                description=description,
                 active=True,
             )
         )

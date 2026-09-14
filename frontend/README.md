@@ -153,16 +153,16 @@ Vite receives public client configuration from environment variables supplied by
 
 ### FE-06 - Bid review
 
-- [ ] Build owner/manager job and bid comparison screens.
-- [ ] Confirm bid acceptance and show the awarded state from the API.
+- [x] Build owner/manager job and bid comparison screens.
+- [x] Confirm bid acceptance and show the awarded state from the API.
 
 **Done when:** the manager completes the core loop without client-side state hacks.
 
 ### FE-07 - Demo polish
 
-- [ ] Add MUI skeleton, empty, validation, error, snackbar, and confirmation states.
-- [ ] Verify keyboard use, labels, contrast, and responsive layout.
-- [ ] Test role boundaries and the full presentation flow.
+- [x] Add MUI skeleton, empty, validation, error, snackbar, and confirmation states.
+- [x] Verify keyboard use, labels, contrast, and responsive layout.
+- [x] Test role boundaries and the full presentation flow.
 
 **Done when:** the happy path is understandable without narration and common failures are recoverable.
 

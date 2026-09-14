@@ -15,6 +15,7 @@ import {
   DialogTitle,
   Divider,
   MenuItem,
+  Snackbar,
   Stack,
   TextField,
   Typography,
@@ -56,6 +57,7 @@ import type {
   ServiceCategory,
 } from "../api/types";
 import { IssueReportDialog } from "../components/IssueReportDialog";
+import { BidReviewDialog } from "../components/BidReviewDialog";
 import { JobPublishDialog } from "../components/JobPublishDialog";
 import { ReportStatusChip, UrgencyChip } from "../components/ReportStatusChip";
 
@@ -83,6 +85,8 @@ export function PropertyDetailPage() {
   const [recordDialog, setRecordDialog] = useState(false);
   const [reportDialog, setReportDialog] = useState(false);
   const [publishing, setPublishing] = useState<PublishSource | null>(null);
+  const [reviewingJob, setReviewingJob] = useState<Job | null>(null);
+  const [notice, setNotice] = useState("");
   const [rejecting, setRejecting] = useState<IssueReport | null>(null);
   const [rejectReason, setRejectReason] = useState("");
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -517,6 +521,15 @@ export function PropertyDetailPage() {
                       Budget {money.format(Number(job.budget))} · Public location{" "}
                       {job.public_location}
                     </Typography>
+                    {(job.status === "open" || job.status === "awarded") && (
+                      <Button
+                        variant={job.status === "open" ? "contained" : "outlined"}
+                        onClick={() => setReviewingJob(job)}
+                        sx={{ alignSelf: "start" }}
+                      >
+                        {job.status === "open" ? "Review bids" : "View accepted bid"}
+                      </Button>
+                    )}
                   </Stack>
                 </CardContent>
               </Card>
@@ -552,6 +565,27 @@ export function PropertyDetailPage() {
         }
         onClose={() => setPublishing(null)}
         onPublish={publish}
+      />
+      {reviewingJob && (
+        <BidReviewDialog
+          key={reviewingJob.id}
+          job={reviewingJob}
+          onClose={() => setReviewingJob(null)}
+          onAccepted={async () => {
+            const nextJobs = await getPropertyJobs(propertyId);
+            setJobs(nextJobs);
+            setReviewingJob(
+              nextJobs.find((job) => job.id === reviewingJob.id) ?? null,
+            );
+            setNotice("Bid accepted and job awarded.");
+          }}
+        />
+      )}
+      <Snackbar
+        open={Boolean(notice)}
+        autoHideDuration={5000}
+        message={notice}
+        onClose={() => setNotice("")}
       />
 
       <ComponentDialog
