@@ -6,59 +6,36 @@ import {
   Button,
   Card,
   CardContent,
-  Checkbox,
   Chip,
   CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   Stack,
   TextField,
   Typography,
 } from "@mui/material";
 import { type FormEvent, useEffect, useState } from "react";
 
-import { getCategories } from "../api/properties";
 import {
   createBid,
   getAwards,
   getMatchedJobs,
   getProviderProfile,
   type BidInput,
-  type ProviderProfileInput,
   updateBid,
-  updateProviderProfile,
-  updateProviderServices,
   withdrawBid,
 } from "../api/provider";
-import type {
-  Job,
-  MatchedJob,
-  ProviderProfile,
-  ServiceCategory,
-} from "../api/types";
+import type { Job, MatchedJob } from "../api/types";
 
 const money = new Intl.NumberFormat("en-ZA", {
   style: "currency",
   currency: "ZAR",
 });
 
-const emptyProfile: ProviderProfileInput = {
-  business_name: "",
-  description: "",
-  phone: "",
-  suburb: "",
-  city: "",
-  service_radius_km: 25,
-};
-
 export function ProviderMarketplacePage() {
-  const [profile, setProfile] = useState<ProviderProfile | null>(null);
-  const [profileForm, setProfileForm] = useState<ProviderProfileInput>(emptyProfile);
-  const [categories, setCategories] = useState<ServiceCategory[]>([]);
-  const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set());
+  const [profileReady, setProfileReady] = useState(true);
   const [jobs, setJobs] = useState<MatchedJob[]>([]);
   const [awards, setAwards] = useState<Job[]>([]);
   const [bidding, setBidding] = useState<MatchedJob | null>(null);
@@ -69,33 +46,16 @@ export function ProviderMarketplacePage() {
 
   useEffect(() => {
     Promise.all([
-      getCategories(),
-      getProviderProfile().catch(() => null),
+      getProviderProfile()
+        .then(() => true)
+        .catch(() => false),
       getMatchedJobs().catch(() => []),
       getAwards().catch(() => []),
     ])
-      .then(([nextCategories, nextProfile, nextJobs, nextAwards]) => {
-        setCategories(nextCategories);
-        setProfile(nextProfile);
+      .then(([nextProfileReady, nextJobs, nextAwards]) => {
+        setProfileReady(nextProfileReady);
         setJobs(nextJobs);
         setAwards(nextAwards);
-        if (nextProfile) {
-          setProfileForm({
-            business_name: nextProfile.business_name,
-            description: nextProfile.description,
-            phone: nextProfile.phone,
-            suburb: nextProfile.suburb,
-            city: nextProfile.city,
-            service_radius_km: nextProfile.service_radius_km,
-          });
-          setActiveCategories(
-            new Set(
-              nextProfile.services
-                .filter((service) => service.active)
-                .map((service) => service.category_code),
-            ),
-          );
-        }
       })
       .catch((caught) => {
         setError(caught instanceof Error ? caught.message : "Could not load marketplace");
@@ -107,55 +67,6 @@ export function ProviderMarketplacePage() {
     const [nextJobs, nextAwards] = await Promise.all([getMatchedJobs(), getAwards()]);
     setJobs(nextJobs);
     setAwards(nextAwards);
-  };
-
-  const saveProfile = async (event: FormEvent) => {
-    event.preventDefault();
-    setBusy(true);
-    setError("");
-    setSuccess("");
-    try {
-      const updated = await updateProviderProfile(profileForm);
-      setProfile(updated);
-      setSuccess("Provider profile saved.");
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not save profile");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const saveServices = async () => {
-    setBusy(true);
-    setError("");
-    setSuccess("");
-    try {
-      const updated = await updateProviderServices(
-        categories
-          .filter((category) => activeCategories.has(category.code))
-          .map((category) => ({
-            category_code: category.code,
-            description: category.description,
-            active: true,
-          })),
-      );
-      setProfile(updated);
-      await refreshJobs();
-      setSuccess("Active services updated; matched jobs refreshed.");
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Could not save services");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const toggleCategory = (code: string) => {
-    setActiveCategories((current) => {
-      const next = new Set(current);
-      if (next.has(code)) next.delete(code);
-      else next.add(code);
-      return next;
-    });
   };
 
   if (loading) {
@@ -173,150 +84,31 @@ export function ProviderMarketplacePage() {
           Service provider
         </Typography>
         <Typography variant="h3" sx={{ fontWeight: 900 }}>
-          Profile and matched jobs
+          Jobs and awarded work
         </Typography>
         <Typography color="text.secondary">
-          Keep your coverage and services current, then bid on matching open work.
+          Bid on matching open work and keep track of jobs you have won.
         </Typography>
       </Box>
 
       {error && <Alert severity="error">{error}</Alert>}
       {success && <Alert severity="success">{success}</Alert>}
 
-      <Card>
-        <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-          <Stack component="form" spacing={2.5} onSubmit={saveProfile}>
-            <Stack
-              direction={{ xs: "column", md: "row" }}
-              sx={{ justifyContent: "space-between", gap: 2 }}
-            >
-              <Box>
-                <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                  Business profile
-                </Typography>
-                <Typography color="text.secondary">
-                  Your city and active services determine which jobs match.
-                </Typography>
-              </Box>
-              {profile && <Chip color="primary" label={`${profile.rating} rating`} />}
-            </Stack>
-            <TextField
-              required
-              label="Business name"
-              value={profileForm.business_name}
-              onChange={(event) =>
-                setProfileForm((current) => ({
-                  ...current,
-                  business_name: event.target.value,
-                }))
-              }
-            />
-            <TextField
-              required
-              multiline
-              minRows={3}
-              label="Service description"
-              value={profileForm.description}
-              onChange={(event) =>
-                setProfileForm((current) => ({
-                  ...current,
-                  description: event.target.value,
-                }))
-              }
-            />
-            <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-              <TextField
-                required
-                fullWidth
-                label="Phone"
-                value={profileForm.phone}
-                onChange={(event) =>
-                  setProfileForm((current) => ({ ...current, phone: event.target.value }))
-                }
-              />
-              <TextField
-                required
-                fullWidth
-                label="Suburb"
-                value={profileForm.suburb}
-                onChange={(event) =>
-                  setProfileForm((current) => ({ ...current, suburb: event.target.value }))
-                }
-              />
-              <TextField
-                required
-                fullWidth
-                label="City"
-                value={profileForm.city}
-                onChange={(event) =>
-                  setProfileForm((current) => ({ ...current, city: event.target.value }))
-                }
-              />
-              <TextField
-                required
-                fullWidth
-                type="number"
-                label="Radius (km)"
-                value={profileForm.service_radius_km}
-                onChange={(event) =>
-                  setProfileForm((current) => ({
-                    ...current,
-                    service_radius_km: Number(event.target.value),
-                  }))
-                }
-                slotProps={{ htmlInput: { min: 1, max: 500 } }}
-              />
-            </Stack>
-            <Button type="submit" variant="contained" disabled={busy} sx={{ alignSelf: "start" }}>
-              Save profile
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardContent sx={{ p: { xs: 2.5, md: 3.5 } }}>
-          <Stack spacing={2}>
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 800 }}>
-                Active services
-              </Typography>
-              <Typography color="text.secondary">
-                Only active categories are used by backend matching.
-              </Typography>
-            </Box>
-            <Box sx={{ display: "grid", gridTemplateColumns: { sm: "1fr 1fr" } }}>
-              {categories.map((category) => (
-                <FormControlLabel
-                  key={category.code}
-                  control={
-                    <Checkbox
-                      checked={activeCategories.has(category.code)}
-                      onChange={() => toggleCategory(category.code)}
-                    />
-                  }
-                  label={category.name}
-                />
-              ))}
-            </Box>
-            <Button
-              variant="outlined"
-              disabled={busy || !profile}
-              onClick={() => void saveServices()}
-              sx={{ alignSelf: "start" }}
-            >
-              Update services
-            </Button>
-          </Stack>
-        </CardContent>
-      </Card>
-
       <Box>
         <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
           Matched open jobs
         </Typography>
-        {!profile ? (
-          <Alert severity="info">Save your profile before selecting services and bidding.</Alert>
+        {!profileReady ? (
+          <Alert
+            severity="info"
+            action={
+              <Button color="inherit" size="small" href="/provider/profile">
+                Create profile
+              </Button>
+            }
+          >
+            Create your profile and select services before bidding.
+          </Alert>
         ) : jobs.length === 0 ? (
           <Typography color="text.secondary">
             No open jobs match your active categories and city.

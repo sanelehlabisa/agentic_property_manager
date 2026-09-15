@@ -6,9 +6,11 @@ import {
   Avatar,
   Box,
   Button,
+  ButtonBase,
   Container,
   Stack,
   Toolbar,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -20,6 +22,21 @@ export function AppShell() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const roleLabel = user?.role.replace("_", " ");
+  const accountSummary = user ? (
+    <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
+      <Avatar sx={{ bgcolor: "grey.200", color: "text.primary" }}>
+        <PersonRoundedIcon />
+      </Avatar>
+      <Box sx={{ display: { xs: "none", md: "block" }, textAlign: "left" }}>
+        <Typography variant="body2" sx={{ fontWeight: 800 }}>
+          Hello, {user.name.split(" ")[0]}
+        </Typography>
+        <Typography variant="caption" color="text.secondary">
+          {user.email} | {roleLabel}
+        </Typography>
+      </Box>
+    </Stack>
+  ) : null;
 
   const leaveSession = () => {
     signOut();
@@ -75,29 +92,18 @@ export function AppShell() {
               Dashboard
             </Button>
           )}
-          {user?.role === "provider" && (
-            <Button
-              color="inherit"
-              onClick={() => navigate("/provider/profile")}
-              sx={{ display: { xs: "none", md: "inline-flex" } }}
-            >
-              Profile & services
-            </Button>
-          )}
-          {user && (
-            <Stack direction="row" spacing={1} sx={{ alignItems: "center" }}>
-              <Avatar sx={{ bgcolor: "grey.200", color: "text.primary" }}>
-                <PersonRoundedIcon />
-              </Avatar>
-              <Box sx={{ display: { xs: "none", md: "block" } }}>
-                <Typography variant="body2" sx={{ fontWeight: 800 }}>
-                  Hello, {user.name.split(" ")[0]}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {user.email} · {roleLabel}
-                </Typography>
-              </Box>
-            </Stack>
+          {user?.role === "provider" ? (
+            <Tooltip title="Edit profile and services">
+              <ButtonBase
+                aria-label="Edit profile and services"
+                onClick={() => navigate("/provider/profile")}
+                sx={{ borderRadius: 2, p: 0.5 }}
+              >
+                {accountSummary}
+              </ButtonBase>
+            </Tooltip>
+          ) : (
+            accountSummary
           )}
           <Button
             color="error"

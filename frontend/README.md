@@ -176,8 +176,8 @@ Vite receives public client configuration from environment variables supplied by
 
 ### FE-09 - Account profile entry point
 
-- [ ] Make the user identity area the entry point for account/profile editing.
-- [ ] Keep profile forms away from the main provider job feed.
+- [x] Make the user identity area the entry point for account/profile editing.
+- [x] Keep profile forms away from the main provider job feed.
 
 **Done when:** landing pages prioritize daily tasks while profile editing remains easy to find.
 

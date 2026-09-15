@@ -6,6 +6,7 @@ import { HealthPage } from "../pages/HealthPage";
 import { PortfolioPage } from "../pages/PortfolioPage";
 import { PropertyDetailPage } from "../pages/PropertyDetailPage";
 import { ProviderMarketplacePage } from "../pages/ProviderMarketplacePage";
+import { ProviderProfilePage } from "../pages/ProviderProfilePage";
 import { SignInPage } from "../pages/SignInPage";
 import { TenantHomePage } from "../pages/TenantHomePage";
 
@@ -28,7 +29,7 @@ export function AppRouter() {
         </Route>
         <Route element={<RoleGuard allow={["provider"]} />}>
           <Route path="provider/jobs" element={<ProviderMarketplacePage />} />
-          <Route path="provider/profile" element={<ProviderMarketplacePage />} />
+          <Route path="provider/profile" element={<ProviderProfilePage />} />
         </Route>
       </Route>
 

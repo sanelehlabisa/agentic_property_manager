@@ -203,7 +203,7 @@ Detailed acceptance criteria are in [backend/README.md](backend/README.md) and [
 ### Batch 5 - navigation and account polish
 
 - [x] **FE-08:** Add a simple logo, personal greeting, user icon, email/role summary, and red sign-out action to the shared header.
-- [ ] **FE-09:** Move account/profile editing behind the user area so role landing pages focus on daily work.
+- [x] **FE-09:** Move account/profile editing behind the user area so role landing pages focus on daily work.
 
 ### Batch 6 - issues overview
 
