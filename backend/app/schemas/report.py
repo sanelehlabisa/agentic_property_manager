@@ -19,6 +19,7 @@ class IssueReportRead(BaseModel):
 
     id: UUID
     property_id: UUID
+    property_name: str | None = None
     reporter_user_id: UUID
     reporter_name: str | None = None
     component_id: UUID | None

@@ -1,14 +1,19 @@
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime, time, timedelta
 from uuid import UUID
 
 from fastapi import HTTPException
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models import Component, IssueReport, Job, User
+from app.models import Component, IssueReport, Job, Property, PropertyAccess, User
 from app.models.enums import JobStatus, PropertyAccessRole, ReportStatus, UserRole
 from app.schemas.report import IssueReportCreate
-from app.services.access import get_accessible_property, require_property_manager
+from app.services.access import (
+    MANAGEMENT_ACCESS,
+    get_accessible_property,
+    require_account_role,
+    require_property_manager,
+)
 from app.services.properties import validate_category
 
 
@@ -25,6 +30,52 @@ def list_reports(
     )
     if membership.access_role == PropertyAccessRole.TENANT:
         query = query.where(IssueReport.reporter_user_id == user.id)
+    return list(session.execute(query).all())
+
+
+def list_accessible_reports(
+    session: Session,
+    user: User,
+    *,
+    report_status: ReportStatus | None = None,
+    from_date: date | None = None,
+    to_date: date | None = None,
+    property_id: UUID | None = None,
+    limit: int = 20,
+) -> list[tuple[IssueReport, str, JobStatus | None, str]]:
+    require_account_role(user, {UserRole.HOMEOWNER, UserRole.MANAGER})
+    if from_date and to_date and from_date > to_date:
+        raise HTTPException(status_code=422, detail="from_date must not exceed to_date")
+
+    query = (
+        select(IssueReport, User.name, Job.status, Property.name)
+        .join(User, User.id == IssueReport.reporter_user_id)
+        .join(Property, Property.id == IssueReport.property_id)
+        .join(
+            PropertyAccess,
+            (PropertyAccess.property_id == IssueReport.property_id)
+            & (PropertyAccess.user_id == user.id),
+        )
+        .outerjoin(Job, Job.issue_report_id == IssueReport.id)
+        .where(PropertyAccess.access_role.in_(tuple(MANAGEMENT_ACCESS)))
+    )
+    if report_status:
+        query = query.where(IssueReport.status == report_status)
+    if property_id:
+        query = query.where(IssueReport.property_id == property_id)
+    if from_date:
+        query = query.where(
+            IssueReport.created_at >= datetime.combine(from_date, time.min, UTC)
+        )
+    if to_date:
+        query = query.where(
+            IssueReport.created_at
+            < datetime.combine(to_date + timedelta(days=1), time.min, UTC)
+        )
+
+    query = query.order_by(IssueReport.created_at.desc(), IssueReport.id.desc()).limit(
+        limit
+    )
     return list(session.execute(query).all())
 
 

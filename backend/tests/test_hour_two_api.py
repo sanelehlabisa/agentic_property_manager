@@ -106,6 +106,99 @@ def test_tenant_report_requires_manager_approval(api) -> None:
     assert approved.json()["reviewed_by_user_id"] == manager_headers["X-User-ID"]
 
 
+def test_issue_overview_is_filtered_and_scoped_to_managed_properties(api) -> None:
+    client, session = api
+    property_ = demo_property(session)
+    tenant_headers = auth_headers(session, "tenant@example.com")
+    manager_headers = auth_headers(session, "manager@example.com")
+    owner_headers = auth_headers(session, "owner@example.com")
+    provider_headers = auth_headers(session, "provider@example.com")
+
+    visible_report = client.post(
+        f"/properties/{property_.id}/reports",
+        headers=tenant_headers,
+        json={
+            "category_code": "plumbing",
+            "title": "Visible kitchen leak",
+            "description": "Water is collecting below the kitchen sink.",
+            "urgency": "high",
+        },
+    )
+    assert visible_report.status_code == 201
+
+    private_property = client.post(
+        "/properties",
+        headers=owner_headers,
+        json={
+            "name": "Owner-only Property",
+            "address_line_1": "10 Private Street",
+            "suburb": "Parkview",
+            "city": "Johannesburg",
+        },
+    )
+    assert private_property.status_code == 201
+    private_property_data = private_property.json()
+    private_report = client.post(
+        f"/properties/{private_property_data['id']}/reports",
+        headers=owner_headers,
+        json={
+            "category_code": "electrical",
+            "title": "Private power issue",
+            "description": "A circuit breaker trips when the oven is used.",
+            "urgency": "medium",
+        },
+    )
+    assert private_report.status_code == 201
+
+    manager_overview = client.get("/reports", headers=manager_headers)
+    assert manager_overview.status_code == 200
+    assert [report["title"] for report in manager_overview.json()] == [
+        "Visible kitchen leak"
+    ]
+    assert manager_overview.json()[0]["property_name"] == "Demo Home"
+
+    approved = client.post(
+        f"/reports/{visible_report.json()['id']}/approve", headers=manager_headers
+    )
+    assert approved.status_code == 200
+
+    approved_only = client.get("/reports?status=approved", headers=owner_headers)
+    assert approved_only.status_code == 200
+    assert [report["title"] for report in approved_only.json()] == [
+        "Visible kitchen leak"
+    ]
+
+    limited_pending = client.get(
+        "/reports?status=pending_approval&limit=1", headers=owner_headers
+    )
+    assert limited_pending.status_code == 200
+    assert len(limited_pending.json()) == 1
+    assert limited_pending.json()[0]["title"] == "Private power issue"
+
+    hidden_property = client.get(
+        f"/reports?property_id={private_property_data['id']}",
+        headers=manager_headers,
+    )
+    assert hidden_property.status_code == 200
+    assert hidden_property.json() == []
+
+    old_range = client.get(
+        "/reports?from_date=2000-01-01&to_date=2000-01-02",
+        headers=owner_headers,
+    )
+    assert old_range.status_code == 200
+    assert old_range.json() == []
+
+    invalid_range = client.get(
+        "/reports?from_date=2026-02-02&to_date=2026-02-01",
+        headers=owner_headers,
+    )
+    assert invalid_range.status_code == 422
+
+    assert client.get("/reports", headers=tenant_headers).status_code == 403
+    assert client.get("/reports", headers=provider_headers).status_code == 403
+
+
 def test_owner_can_create_property_component_and_history(api) -> None:
     client, session = api
     owner_headers = auth_headers(session, "owner@example.com")

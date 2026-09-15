@@ -207,7 +207,7 @@ Detailed acceptance criteria are in [backend/README.md](backend/README.md) and [
 
 ### Batch 6 - issues overview
 
-- [ ] **BE-10:** Add one property-scoped issue list endpoint with status and date filters.
+- [x] **BE-10:** Add one property-scoped issue list endpoint with status and date filters.
 - [ ] **FE-10:** Add a top-level owner/manager issues view showing the five most recent issues across accessible properties.
 - [ ] **FE-11:** Show the three most recent issues on each portfolio property card.
 

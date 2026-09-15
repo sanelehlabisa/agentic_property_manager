@@ -1,10 +1,13 @@
+from datetime import date
+from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Query, status
 from sqlalchemy import select
 
 from app.api.dependencies import CurrentUser, DatabaseSession
 from app.models import Job
+from app.models.enums import ReportStatus
 from app.schemas.report import IssueReportCreate, IssueReportRead, ReportRejection
 from app.services import reports as service
 
@@ -20,6 +23,38 @@ def report_response(
     return IssueReportRead.model_validate(report).model_copy(
         update={"reporter_name": reporter_name, "job_status": job_status}
     )
+
+
+@router.get("/reports", response_model=list[IssueReportRead])
+def get_accessible_reports(
+    session: DatabaseSession,
+    user: CurrentUser,
+    report_status: Annotated[ReportStatus | None, Query(alias="status")] = None,
+    from_date: date | None = None,
+    to_date: date | None = None,
+    property_id: UUID | None = None,
+    limit: Annotated[int, Query(ge=1, le=100)] = 20,
+) -> list[IssueReportRead]:
+    return [
+        IssueReportRead.model_validate(report).model_copy(
+            update={
+                "reporter_name": reporter_name,
+                "job_status": job_status,
+                "property_name": property_name,
+            }
+        )
+        for report, reporter_name, job_status, property_name in (
+            service.list_accessible_reports(
+                session,
+                user,
+                report_status=report_status,
+                from_date=from_date,
+                to_date=to_date,
+                property_id=property_id,
+                limit=limit,
+            )
+        )
+    ]
 
 
 @router.get("/properties/{property_id}/reports", response_model=list[IssueReportRead])

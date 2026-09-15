@@ -156,6 +156,7 @@ POST   /properties/{property_id}/maintenance-imports/confirm
 
 GET    /properties/{property_id}/reports
 POST   /properties/{property_id}/reports
+GET    /reports?status=&from_date=&to_date=&property_id=&limit=
 POST   /reports/{report_id}/approve
 POST   /reports/{report_id}/reject
 
@@ -249,6 +250,14 @@ Settings come from environment variables loaded from the repository root `.env` 
 - [x] Add resettable seed data and document shortcuts.
 
 **Done when:** the entire demo can be replayed predictably.
+
+### BE-10 - Accessible issue overview
+
+- [x] List recent reports across properties managed by the signed-in homeowner or manager.
+- [x] Support optional status, date range, property, and bounded result-limit filters.
+- [x] Keep tenants, providers, and inaccessible property reports out of the response.
+
+**Done when:** the frontend can request a safe, filtered cross-property issue overview without reproducing access rules.
 
 ## Out of scope
 
